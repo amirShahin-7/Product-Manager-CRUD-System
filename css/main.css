@@ -52,9 +52,7 @@ body {
 }
 
 .search-box input:focus,
-.form-floating input:focus,
-.form-floating select:focus,
-.form-floating textarea:focus {
+.form-floating input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
 }

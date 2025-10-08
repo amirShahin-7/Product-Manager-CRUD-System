@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <meta name="auther" content="Amir Shahin" />
     <title>CRUD System</title>
 
     <!-- ===== favicon ===== -->
@@ -47,40 +47,64 @@
                 <div id="productForm">
                   <div class="form-floating mb-3">
                     <input
+                      oninput="validationInputs(this ,'msgName')"
                       type="text"
                       id="productName"
                       class="form-control"
-                      placeholder=""
+                      placeholder=" "
                     />
                     <label for="productName">Product Name</label>
+                    <p id="msgName" class="alert alert-danger d-none">
+                      It must start with a letter, be 3 to 20 characters long,
+                      and can only contain letters, numbers, hyphens, or
+                      underscores.
+                    </p>
                   </div>
 
                   <div class="form-floating mb-3">
                     <input
+                      oninput="validationInputs(this ,'msgPrice')"
                       type="number"
                       id="productPrice"
                       class="form-control"
-                      placeholder=""
+                      placeholder=" "
                     />
                     <label for="productPrice">Price</label>
+                    <p id="msgPrice" class="alert alert-danger d-none">
+                      It should be a number with up to 10 digits before the
+                      decimal point and up to 2 digits after the decimal
+                    </p>
                   </div>
 
                   <div class="form-floating mb-3">
-                    <select id="productCategory" class="form-select">
-                      <option value="" selected disabled></option>
-                      <option value="Electronics">Electronics</option>
-                      <option value="Clothing">Clothing</option>
-                      <option value="Books">Books</option>
-                      <option value="Sports">Sports</option>
-                    </select>
+                    <input
+                      oninput="validationInputs(this , 'msgCategory')"
+                      list="list"
+                      type="text"
+                      class="form-control"
+                      id="productCategory"
+                      placeholder=" "
+                    />
                     <label for="productCategory">
                       <i class="fas fa-list me-2"></i>
                       Category
                     </label>
+                    <p id="msgCategory" class="alert alert-danger d-none">
+                      Please select a valid category: mobile, tv, screens, or
+                      electronic.
+                    </p>
+
+                    <datalist id="list">
+                      <option value="tv" />
+                      <option value="mobile" />
+                      <option value="screens" />
+                      <option value="electronic" />
+                    </datalist>
                   </div>
 
                   <div class="form-floating mb-3">
                     <textarea
+                      oninput="validationInputs(this , 'msgDescription')"
                       id="productDescription"
                       class="form-control"
                       placeholder=" "
@@ -88,17 +112,30 @@
                     <label for="productDescription"
                       ><i class="fas fa-align-left me-2"></i>Description</label
                     >
+                    <p id="msgDescription" class="alert alert-danger d-none">
+                      Please enter a description between 4 and 100 characters.
+                      Letters, numbers and spaces are allowed.
+                    </p>
                   </div>
 
                   <div class="form-floating mb-3">
-                    <input type="file" id="imageFile" class="form-control" />
-                    <label for="imageFile"
+                    <input
+                      onchange="validationInputs(this , 'msgImage')"
+                      type="file"
+                      id="productImage"
+                      class="form-control"
+                    />
+                    <label for="productImage"
                       ><i class="fas fa-image me-2"></i>Product Image</label
                     >
+                    <p id="msgImage" class="alert alert-danger d-none">
+                      image must be in jpg, jpeg, png, or webp format.
+                    </p>
                   </div>
 
                   <div class="d-flex w-50 mx-auto mt-5">
                     <button
+                      onclick="updateProduct()"
                       type="button"
                       class="btn btn-primary w-100 d-none"
                       id="updateBtn"
@@ -106,6 +143,7 @@
                       <i class="fas fa-sync-alt me-2"></i>Update Product
                     </button>
                     <button
+                      onclick="addProduct()"
                       type="submit"
                       class="btn btn-success w-100"
                       id="addBtn"
@@ -117,9 +155,10 @@
 
                 <div class="mt-5 position-relative search-box">
                   <input
+                    oninput="searchInput(this.value)"
                     type="search"
                     class="form-control rounded-pill ps-5 py-2"
-                    id="searchInput"
+                    id="searchProduct"
                     placeholder="Search products By Name..."
                   />
                   <i class="fas fa-search search-icon"></i>
@@ -138,43 +177,15 @@
           </h2>
           <!-- Product List -->
           <div class="row g-4" id="productList">
-            <div class="col-md-6 col-lg-4 col-xl-3">
-              <div class="card product-card h-100 overflow-hidden border-0">
-                <img
-                  src="./images/product-1.jpeg"
-                  class="w-100 object-fit-cover"
-                  height="200px"
-                  alt="Headphones"
-                />
-                <div class="card-body pb-0 h-100">
-                  <div
-                    class="d-flex justify-content-between align-items-center mb-2"
-                  >
-                    <h3 class="card-title fs-6 fw-bold pt-2">
-                      Wireless Headphones
-                    </h3>
-                    <span
-                      class="price-tag fw-semibold d-inline-block text-white rounded-4 py-1 px-3"
-                      >$89.99</span
-                    >
-                  </div>
-                  <span class="badge">Electronics</span>
-                  <p class="card-text text-body-secondary mt-2">
-                    High-quality wireless headphones with noise cancellation.
-                  </p>
-                  <div
-                    class="card-footer px-0 pt-4 bg-transparent d-flex justify-content-between align-items-end"
-                  >
-                    <button class="btn btn-warning text-white btn-sm">
-                      <i class="fas fa-edit me-1"></i> Edit
-                    </button>
-                    <button class="btn btn-danger btn-sm">
-                      <i class="fas fa-trash me-1"></i> Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Product Cols -->
+          </div>
+
+          <!-- If we haven't product will see this info -->
+          <div
+            id="nonProduct"
+            class="mt-5 header rounded-4 bg-info text-white text-center d-none"
+          >
+            <h3 class="py-3">No Products To Show</h3>
           </div>
         </div>
       </section>
