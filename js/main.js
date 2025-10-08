@@ -12,6 +12,22 @@ var productList = JSON.parse(localStorage.getItem("productList")) || [];
 displayProduct(productList);
 
 var updateIndex;
+function handleFileSelection(select) {
+  var file = productImageInput.files[0];
+
+  if (!file) {
+    select("./images/placeholder.png");
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    select(e.target.result);
+  };
+  reader.onerror = function () {
+    select("./images/placeholder.png");
+  };
+  reader.readAsDataURL(file);
+}
 
 function validationInputs(element, msgId) {
   var textInput = element.value;
@@ -21,8 +37,9 @@ function validationInputs(element, msgId) {
     productPrice: /^\d{2,10}(\.\d{1,2})?$/,
     productCategory: /^(mobile|tv|screens|electronic)$/,
     productDescription: /^[\w\W\s]{4,100}$/,
-    productImage: /^.{1,}\.(jpg|jpeg|png|gif|svg)$/,
+    productImage: /^.*\.(jpg|jpeg|png|gif|svg)?$|^$/,
   };
+
   if (regex[element.id].test(textInput) === true) {
     element.classList.add("is-valid");
     element.classList.remove("is-invalid");
@@ -46,38 +63,40 @@ function addProduct() {
     validationInputs(productDescriptionInput, "msgDescription") &&
     validationInputs(productImageInput, "msgImage")
   ) {
-    var product = {
-      name: productNameInput.value,
-      price: productPriceInput.value,
-      category: productCategoryInput.value,
-      description: productDescriptionInput.value,
-      image:
-        productImageInput.files.length > 0
-          ? productImageInput.files[0]?.name
-          : "placeholder.png",
-    };
-    productList.push(product);
-    localStorage.setItem("productList", JSON.stringify(productList));
-    displayProduct(productList);
-    clearInputs();
-    Swal.fire({
-      icon: "success",
-      title: `Your Product ${product.name} has been added`,
-      showConfirmButton: false,
-      timer: 2000,
+    handleFileSelection(function (imageData) {
+      var product = {
+        name: productNameInput.value,
+        price: productPriceInput.value,
+        category: productCategoryInput.value,
+        description: productDescriptionInput.value,
+        image: imageData || "placeholder.png",
+      };
+
+      productList.push(product);
+      localStorage.setItem("productList", JSON.stringify(productList));
+      displayProduct(productList);
+      clearInputs();
+
+      Swal.fire({
+        icon: "success",
+        title: `Your Product ${product.name} has been added`,
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      textInfo();
     });
-    textInfo();
   }
 }
 
 function displayProduct(targetArray) {
   var display = "";
   for (var i = 0; i < targetArray.length; i++) {
+    var productImage = targetArray[i].image;
     display += `
              <div class="col-md-6 col-lg-4 col-xl-3">
               <div class="card product-card h-100 overflow-hidden border-0">
                 <img
-                  src=./images/${targetArray[i].image}
+                  src="${productImage || "./images/placeholder.png"}"
                   class="w-100 object-fit-cover"
                   height="200px"
                   alt="${targetArray[i].name} "
@@ -144,29 +163,33 @@ function updateProduct() {
     validationInputs(productDescriptionInput, "msgDescription") &&
     validationInputs(productImageInput, "msgImage")
   ) {
-    productList[updateIndex].name = productNameInput.value;
-    productList[updateIndex].price = productPriceInput.value;
-    productList[updateIndex].category = productCategoryInput.value;
-    productList[updateIndex].description = productDescriptionInput.value;
-    productList[updateIndex].image =
-      productImageInput.files[0]?.name || "placeholder.png";
-    addBtn.classList.replace("d-none", "d-block");
-    updateBtn.classList.replace("d-block", "d-none");
-    localStorage.setItem("productList", JSON.stringify(productList));
-    displayProduct(productList);
-    clearInputs();
-    Swal.fire({
-      icon: "success",
-      title: `Your Product ${productList[updateIndex].name} has been updated`,
-      showConfirmButton: false,
-      timer: 2000,
+    handleFileSelection(function (imageData) {
+      productList[updateIndex].name = productNameInput.value;
+      productList[updateIndex].price = productPriceInput.value;
+      productList[updateIndex].category = productCategoryInput.value;
+      productList[updateIndex].description = productDescriptionInput.value;
+
+      if (productImageInput.files[0]) {
+        productList[updateIndex].image = imageData;
+      }
+      addBtn.classList.replace("d-none", "d-block");
+      updateBtn.classList.replace("d-block", "d-none");
+      localStorage.setItem("productList", JSON.stringify(productList));
+      displayProduct(productList);
+      clearInputs();
+      Swal.fire({
+        icon: "success",
+        title: `Your Product ${productList[updateIndex].name} has been updated`,
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      textInfo();
     });
-    textInfo();
   }
 }
 function deleteProduct(index) {
   productList.splice(index, 1);
-  localStorage.setItem("productList", JSON.stringify("productList"));
+  localStorage.setItem("productList", JSON.stringify(productList));
   displayProduct(productList);
   clearInputs();
   Swal.fire({
