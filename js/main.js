@@ -188,17 +188,44 @@ function updateProduct() {
   }
 }
 function deleteProduct(index) {
-  productList.splice(index, 1);
-  localStorage.setItem("productList", JSON.stringify(productList));
-  displayProduct(productList);
-  clearInputs();
-  Swal.fire({
-    title: "The Product has been deleted",
-    icon: "info",
-    timer: 2000,
-    draggable: true,
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: "btn btn-success",
+      cancelButton: "btn btn-danger",
+    },
+    buttonsStyling: false,
   });
-  textInfo();
+  swalWithBootstrapButtons
+    .fire({
+      title: "Are you sure?",
+      text: "You won't be able to Delete Product!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        swalWithBootstrapButtons.fire({
+          title: "Deleted!",
+          text: "The Product has been deleted.",
+          icon: "success",
+          timer: 2500,
+        });
+        productList.splice(index, 1);
+        localStorage.setItem("productList", JSON.stringify(productList));
+        displayProduct(productList);
+        clearInputs();
+        textInfo();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        swalWithBootstrapButtons.fire({
+          title: "Cancelled",
+          text: "Your Product is safe :)",
+          icon: "error",
+          timer: 2000,
+        });
+      }
+    });
 }
 function searchInput(searchValue) {
   var filteredProductList = [];
