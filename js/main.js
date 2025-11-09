@@ -37,7 +37,7 @@ function validationInputs(element, msgId) {
     productPrice: /^\d{2,10}(\.\d{1,2})?$/,
     productCategory: /^(mobile|tv|screens|electronic)$/,
     productDescription: /^[\w\W\s]{4,100}$/,
-    productImage: /^.*\.(jpg|jpeg|png|gif|svg)?$|^$/,
+    productImage: /^.*\.(jpg|jpeg|png|gif|svg|webp)?$|^$/,
   };
 
   if (regex[element.id].test(textInput) === true) {
